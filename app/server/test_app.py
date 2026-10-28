@@ -101,6 +101,33 @@ class TestApp(unittest.TestCase):
         self.assertEqual(len(data['dogs']), 1)
         self.assertEqual(set(data['dogs'][0].keys()), {'id', 'name', 'breed'})
 
+    def test_dog_to_dict_serializes_breed_from_breed_info(self):
+        """Dog.to_dict() must read the breed name through the breed_info backref.
+
+        Breed declares ``dogs = relationship('Dog', backref='breed_info')``, so
+        the attribute exposed on Dog is ``breed_info``. Using ``self.breed``
+        instead raises AttributeError during serialization.
+        """
+        from app import db
+        from models import Breed, Dog
+
+        with app.app_context():
+            breed = Breed(
+                name='Labrador Retriever',
+                description='Friendly, outgoing and active companion breed.',
+            )
+            dog = Dog(
+                name='Buddy',
+                gender='Male',
+                description='A very good boy who loves long walks.',
+            )
+            dog.breed_info = breed
+
+            payload = dog.to_dict()
+
+            self.assertEqual(payload['breed'], 'Labrador Retriever')
+            db.session.rollback()
+
 
 if __name__ == '__main__':
     unittest.main()
