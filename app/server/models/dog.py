@@ -48,7 +48,7 @@ class Dog(BaseModel):
         return {
             'id': self.id,
             'name': self.name,
-            'breed': self.breed.name if self.breed else None,
+            'breed': self.breed_info.name if self.breed_info else None,
             'age': self.age,
             'gender': self.gender,
             'description': self.description,
